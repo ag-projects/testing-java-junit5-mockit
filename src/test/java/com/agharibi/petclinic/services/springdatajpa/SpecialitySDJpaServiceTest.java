@@ -33,6 +33,16 @@ class SpecialitySDJpaServiceTest {
     }
 
     @Test
+    void testDeleteByObjectBDD() {
+        // given
+        Speciality speciality = new Speciality();
+        // when
+        service.delete(speciality);
+        // then
+        then(repository).should().delete(any(Speciality.class));
+    }
+
+    @Test
     void testFindById() {
         Speciality speciality = new Speciality();
         when(repository.findById(1L)).thenReturn(Optional.of(speciality));
@@ -65,6 +75,15 @@ class SpecialitySDJpaServiceTest {
     }
 
     @Test
+    void deleteByIdBDDTest() {
+        //given none
+        //when
+        service.deleteById(anyLong());
+        //then
+        then(repository).should(times(1)).deleteById(anyLong());
+    }
+
+    @Test
     void deleteByAtLeastOnce() {
         service.deleteById(1L);
         service.deleteById(1L);
@@ -72,6 +91,16 @@ class SpecialitySDJpaServiceTest {
         verify(repository, atLeastOnce()).deleteById(1L);
     }
 
+    @Test
+    void deleteByAtLeastOne() {
+
+        //given
+        //when
+        service.deleteById(anyLong());
+        service.deleteById(anyLong());
+        //then
+        then(repository).should(atLeastOnce()).deleteById(anyLong());
+    }
 
     @Test
     void deleteByAtMostOnce() {
