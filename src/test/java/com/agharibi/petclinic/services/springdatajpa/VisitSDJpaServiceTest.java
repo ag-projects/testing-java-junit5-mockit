@@ -7,6 +7,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.when;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -14,6 +17,7 @@ import java.util.Set;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,10 +43,38 @@ class VisitSDJpaServiceTest {
     }
 
     @Test
+    void findAllBDD() {
+        // given
+        Visit visit = new Visit();
+        Set<Visit> visits = new HashSet<>();
+        visits.add(visit);
+        given(repository.findAll()).willReturn(visits);
+
+        // when
+        Set<Visit> foundVisits = service.findAll();
+
+        // then
+        then(repository).should().findAll();
+        assertThat(foundVisits).hasSize(1);
+    }
+
+    @Test
     void findById() {
         Visit visit = new Visit();
         when(repository.findById(1L)).thenReturn(Optional.of(visit));
         Visit found = service.findById(1L);
+        assertThat(found).isNotNull();
+    }
+
+    @Test
+    void findByIdBDD() {
+        // given
+        Visit visit = new Visit();
+        given(repository.findById(anyLong())).willReturn(Optional.of(visit));
+        // when
+        Visit found = service.findById(anyLong());
+        // then
+        then(repository).should().findById(anyLong());
         assertThat(found).isNotNull();
     }
 
@@ -56,6 +88,18 @@ class VisitSDJpaServiceTest {
     }
 
     @Test
+    void saveBDD() {
+        //given
+        Visit visit = new Visit();
+        given(repository.save(any(Visit.class))).willReturn(visit);
+        //when
+        Visit savedVisit = service.save(visit);
+        //then
+        then(repository).should().save(any(Visit.class));
+        assertThat(savedVisit).isNotNull();
+    }
+
+    @Test
     void delete() {
         Visit visit = new Visit();
         service.delete(visit);
@@ -63,8 +107,27 @@ class VisitSDJpaServiceTest {
     }
 
     @Test
+    void deleteBDD() {
+        //given
+        Visit visit = new Visit();
+        //when
+        service.delete(visit);
+        //then
+        then(repository).should().delete(visit);
+    }
+
+    @Test
     void deleteById() {
         service.deleteById(1L);
         verify(repository).deleteById(anyLong());
+    }
+
+    @Test
+    void deleteByIdDBB() {
+        //given
+        //when
+        service.deleteById(anyLong());
+        //then
+        then(repository).should(atLeastOnce()).deleteById(anyLong());
     }
 }
