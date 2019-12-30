@@ -5,9 +5,13 @@ import com.agharibi.petclinic.model.Owner;
 import com.agharibi.petclinic.services.OwnerService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,6 +32,22 @@ class OwnerControllerTest {
 
     @InjectMocks
     OwnerController controller;
+
+
+    @Test
+    void testProcessFindFormWildCardString() {
+        //given
+        Owner owner = new Owner(1L, "Jim", "Stevens");
+        List<Owner> owners = new ArrayList<>();
+        final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        given(service.findAllByLastNameLike(captor.capture())).willReturn(owners);
+
+        //when
+        String viewName = controller.processFindForm(owner, bindingResult, null);
+
+        //then
+        assertThat("%" + owner.getLastName() + "%").isEqualToIgnoringCase(captor.getValue());
+    }
 
     @Test
     void processCreationFormHasErrors() {
@@ -55,4 +75,5 @@ class OwnerControllerTest {
         //then
         assertThat(viewName).isEqualToIgnoringCase(REDIRECT_OWNERS_5);
     }
+
 }
