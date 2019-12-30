@@ -16,8 +16,9 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.in;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.inOrder;
 
 @ExtendWith(MockitoExtension.class)
 class OwnerControllerTest {
@@ -27,6 +28,9 @@ class OwnerControllerTest {
 
     @Mock
     OwnerService service;
+
+    @Mock
+    Model model;
 
     @Mock
     BindingResult bindingResult;
@@ -64,11 +68,18 @@ class OwnerControllerTest {
     void testProcessFindFormFound() {
         //given
         Owner owner = new Owner(1L, "Jim", "FindMe");
+        // order of assertions  does not matter here
+        InOrder inOrder = inOrder(service, model);
         //when
-        String viewName = controller.processFindForm(owner, bindingResult, Mockito.mock(Model.class));
+        String viewName = controller.processFindForm(owner, bindingResult, model);
         //then
         assertThat("%" + owner.getLastName() + "%").isEqualToIgnoringCase(stringArgumentCaptor.getValue());
         assertThat("owners/ownersList").isEqualToIgnoringCase(viewName);
+
+        // order of assertions matters right here
+        inOrder.verify(service).findAllByLastNameLike(anyString());
+        inOrder.verify(model).addAttribute(anyString(), anyList());
+
     }
 
     @Test
