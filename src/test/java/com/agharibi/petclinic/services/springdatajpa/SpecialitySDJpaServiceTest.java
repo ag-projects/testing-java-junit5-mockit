@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.filter;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.*;
 
@@ -142,5 +143,21 @@ class SpecialitySDJpaServiceTest {
         willThrow(new RuntimeException("Error")).given(repository).delete(any());
         assertThrows(RuntimeException.class, () -> service.delete(any()));
         then(repository).should().delete(any());
+    }
+
+    @Test
+    void testSaveLambda() {
+        final String MATCH_ME = "MATCH_ME";
+        Speciality speciality = new Speciality();
+        speciality.setDescription(MATCH_ME);
+
+        Speciality savedSpeciality = new Speciality();
+        savedSpeciality.setId(1L);
+        // given
+        given(repository.save(argThat(arg -> arg.getDescription().equals(MATCH_ME)))).willReturn(savedSpeciality);
+        // when
+        Speciality returnedSpeciality = service.save(speciality);
+        // then
+        assertThat(returnedSpeciality.getId()).isEqualTo(1L);
     }
 }
